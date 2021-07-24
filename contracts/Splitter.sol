@@ -3,14 +3,6 @@ pragma solidity 0.8.4;
 
 import {SplitStorage} from "./SplitStorage.sol";
 
-interface IERC20 {
-    function balanceOf(address account) external view returns (uint256);
-
-    function transfer(address recipient, uint256 amount)
-        external
-        returns (bool);
-}
-
 interface IWETH {
     function deposit() external payable;
 
@@ -20,7 +12,7 @@ interface IWETH {
 /**
  * @title Splitter
  * @author MirrorXYZ
- *
+ * @editor realdiganta
  * Building on the work from the Uniswap team at https://github.com/Uniswap/merkle-distributor
  */
 contract Splitter is SplitStorage {

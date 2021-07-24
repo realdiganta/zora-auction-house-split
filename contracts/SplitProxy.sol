@@ -8,18 +8,25 @@ interface ISplitFactory {
 
     function wethAddress() external returns (address);
 
+    function auctionHouse() external returns (address);
+
+    function splitOwner() external returns (address);
+
     function merkleRoot() external returns (bytes32);
 }
 
 /**
  * @title SplitProxy
  * @author MirrorXYZ
+ * @editor realdiganta
  */
 contract SplitProxy is SplitStorage {
     constructor() {
         _splitter = ISplitFactory(msg.sender).splitter();
         wethAddress = ISplitFactory(msg.sender).wethAddress();
         merkleRoot = ISplitFactory(msg.sender).merkleRoot();
+        auctionHouse = ISplitFactory(msg.sender).auctionHouse();
+        owner = ISplitFactory(msg.sender).splitOwner();
     }
 
     fallback() external payable {

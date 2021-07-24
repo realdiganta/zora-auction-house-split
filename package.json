@@ -1,13 +1,10 @@
 {
-  "name": "mirror-protocol-v1",
+  "name": "zora-auction-house-split",
   "version": "1.0.0",
   "main": "index.js",
-  "repository": "git@github.com:mirror-xyz/ethereum-protocol.git",
-  "author": "<graemelearn@protonmail.com>",
-  "license": "MIT",
+  "license": "GPL-3.0",
   "scripts": {
     "test": "hardhat test",
-    "fix:flatten": "sed -i '' '///SPDX/,+1 d' flattened/MirrorWriteToken.sol",
     "deploy:default": "hardhat run scripts/deploy.ts",
     "deploy:rinkeby": "hardhat run --network rinkeby scripts/deploy.ts",
     "deploy:mainnet": "hardhat run --network mainnet scripts/deploy.ts"
@@ -30,6 +27,7 @@
     "@nomiclabs/hardhat-waffle": "^2.0.0",
     "chai": "^4.2.0",
     "ethereum-waffle": "^3.0.0",
-    "ethers": "^5.0.25"
+    "ethers": "^5.0.25",
+    "hardhat-gas-reporter": "^1.0.4"
   }
 }
