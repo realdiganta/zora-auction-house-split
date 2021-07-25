@@ -18,7 +18,7 @@ interface ISplitFactory {
 /**
  * @title SplitProxy
  * @author MirrorXYZ
- * @editor realdiganta
+ * Modified by realdiganta
  */
 contract SplitProxy is SplitStorage {
     constructor() {

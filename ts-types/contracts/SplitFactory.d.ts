@@ -22,18 +22,28 @@ import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
 
 interface SplitFactoryInterface extends ethers.utils.Interface {
   functions: {
-    "createSplit(bytes32)": FunctionFragment;
+    "auctionHouse()": FunctionFragment;
+    "createSplit(bytes32,address)": FunctionFragment;
     "merkleRoot()": FunctionFragment;
+    "splitOwner()": FunctionFragment;
     "splitter()": FunctionFragment;
     "wethAddress()": FunctionFragment;
   };
 
   encodeFunctionData(
+    functionFragment: "auctionHouse",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "createSplit",
-    values: [BytesLike]
+    values: [BytesLike, string]
   ): string;
   encodeFunctionData(
     functionFragment: "merkleRoot",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "splitOwner",
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "splitter", values?: undefined): string;
@@ -43,10 +53,15 @@ interface SplitFactoryInterface extends ethers.utils.Interface {
   ): string;
 
   decodeFunctionResult(
+    functionFragment: "auctionHouse",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "createSplit",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "merkleRoot", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "splitOwner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "splitter", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "wethAddress",
@@ -70,19 +85,29 @@ export class SplitFactory extends Contract {
   interface: SplitFactoryInterface;
 
   functions: {
+    auctionHouse(overrides?: CallOverrides): Promise<[string]>;
+
+    "auctionHouse()"(overrides?: CallOverrides): Promise<[string]>;
+
     createSplit(
       merkleRoot_: BytesLike,
+      owner_: string,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
-    "createSplit(bytes32)"(
+    "createSplit(bytes32,address)"(
       merkleRoot_: BytesLike,
+      owner_: string,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
     merkleRoot(overrides?: CallOverrides): Promise<[string]>;
 
     "merkleRoot()"(overrides?: CallOverrides): Promise<[string]>;
+
+    splitOwner(overrides?: CallOverrides): Promise<[string]>;
+
+    "splitOwner()"(overrides?: CallOverrides): Promise<[string]>;
 
     splitter(overrides?: CallOverrides): Promise<[string]>;
 
@@ -93,19 +118,29 @@ export class SplitFactory extends Contract {
     "wethAddress()"(overrides?: CallOverrides): Promise<[string]>;
   };
 
+  auctionHouse(overrides?: CallOverrides): Promise<string>;
+
+  "auctionHouse()"(overrides?: CallOverrides): Promise<string>;
+
   createSplit(
     merkleRoot_: BytesLike,
+    owner_: string,
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
-  "createSplit(bytes32)"(
+  "createSplit(bytes32,address)"(
     merkleRoot_: BytesLike,
+    owner_: string,
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
   merkleRoot(overrides?: CallOverrides): Promise<string>;
 
   "merkleRoot()"(overrides?: CallOverrides): Promise<string>;
+
+  splitOwner(overrides?: CallOverrides): Promise<string>;
+
+  "splitOwner()"(overrides?: CallOverrides): Promise<string>;
 
   splitter(overrides?: CallOverrides): Promise<string>;
 
@@ -116,19 +151,29 @@ export class SplitFactory extends Contract {
   "wethAddress()"(overrides?: CallOverrides): Promise<string>;
 
   callStatic: {
+    auctionHouse(overrides?: CallOverrides): Promise<string>;
+
+    "auctionHouse()"(overrides?: CallOverrides): Promise<string>;
+
     createSplit(
       merkleRoot_: BytesLike,
+      owner_: string,
       overrides?: CallOverrides
     ): Promise<string>;
 
-    "createSplit(bytes32)"(
+    "createSplit(bytes32,address)"(
       merkleRoot_: BytesLike,
+      owner_: string,
       overrides?: CallOverrides
     ): Promise<string>;
 
     merkleRoot(overrides?: CallOverrides): Promise<string>;
 
     "merkleRoot()"(overrides?: CallOverrides): Promise<string>;
+
+    splitOwner(overrides?: CallOverrides): Promise<string>;
+
+    "splitOwner()"(overrides?: CallOverrides): Promise<string>;
 
     splitter(overrides?: CallOverrides): Promise<string>;
 
@@ -142,19 +187,29 @@ export class SplitFactory extends Contract {
   filters: {};
 
   estimateGas: {
+    auctionHouse(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "auctionHouse()"(overrides?: CallOverrides): Promise<BigNumber>;
+
     createSplit(
       merkleRoot_: BytesLike,
+      owner_: string,
       overrides?: Overrides
     ): Promise<BigNumber>;
 
-    "createSplit(bytes32)"(
+    "createSplit(bytes32,address)"(
       merkleRoot_: BytesLike,
+      owner_: string,
       overrides?: Overrides
     ): Promise<BigNumber>;
 
     merkleRoot(overrides?: CallOverrides): Promise<BigNumber>;
 
     "merkleRoot()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    splitOwner(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "splitOwner()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     splitter(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -166,19 +221,29 @@ export class SplitFactory extends Contract {
   };
 
   populateTransaction: {
+    auctionHouse(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "auctionHouse()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     createSplit(
       merkleRoot_: BytesLike,
+      owner_: string,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
-    "createSplit(bytes32)"(
+    "createSplit(bytes32,address)"(
       merkleRoot_: BytesLike,
+      owner_: string,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
     merkleRoot(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "merkleRoot()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    splitOwner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "splitOwner()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     splitter(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

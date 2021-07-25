@@ -7,6 +7,8 @@ import scenarios from "./scenarios.json";
 
 let proxyFactory;
 
+const auctionHouseAddress = "0xE468cE99444174Bd3bBBEd09209577d25D1ad673";
+
 const deploySplitter = async () => {
   const Splitter = await ethers.getContractFactory("Splitter");
   const splitter = await Splitter.deploy();
@@ -20,7 +22,8 @@ const deployProxyFactory = async (
   const SplitFactory = await ethers.getContractFactory("SplitFactory");
   const proxyFactory = await SplitFactory.deploy(
     splitterAddress,
-    fakeWETHAddress
+    fakeWETHAddress,
+    auctionHouseAddress
   );
   return await proxyFactory.deployed();
 };
@@ -66,7 +69,7 @@ describe("SplitProxy via Factory", () => {
 
         const deployTx = await proxyFactory
           .connect(funder)
-          .createSplit(rootHash);
+          .createSplit(rootHash, account1.address);
         // Compute address.
         const constructorArgs = ethers.utils.defaultAbiCoder.encode(
           ["bytes32"],
@@ -332,7 +335,7 @@ describe("SplitProxy via Factory", () => {
               fakeWETH.address
             );
 
-            deployTx = await proxyFactory.connect(funder).createSplit(rootHash);
+            deployTx = await proxyFactory.connect(funder).createSplit(rootHash, account1.address);
             // Compute address.
             const constructorArgs = ethers.utils.defaultAbiCoder.encode(
               ["bytes32"],
@@ -661,3 +664,5 @@ describe("SplitProxy via Factory", () => {
     }
   });
 });
+
+// 291719

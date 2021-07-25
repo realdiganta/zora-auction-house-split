@@ -2,6 +2,20 @@
 pragma solidity 0.8.4;
 
 import {SplitStorage} from "./SplitStorage.sol";
+import {IAuctionHouse} from "./interfaces/IAuctionHouse.sol";
+
+interface IERC165 {
+    function supportsInterface(bytes4 interfaceId) external view returns (bool);
+}
+
+interface IERC721 is IERC165 {
+    function approve(address to, uint256 tokenId) external;
+}
+
+interface IERC20 {
+    function balanceOf(address account) external view returns (uint256);
+    function transfer(address recipient, uint256 amount) external returns (bool);
+}
 
 interface IWETH {
     function deposit() external payable;
@@ -9,12 +23,13 @@ interface IWETH {
     function transfer(address to, uint256 value) external returns (bool);
 }
 
-/**
+/*
  * @title Splitter
  * @author MirrorXYZ
- * @editor realdiganta
+ * Modified for Zora Auction House by @realdiganta
  * Building on the work from the Uniswap team at https://github.com/Uniswap/merkle-distributor
  */
+
 contract Splitter is SplitStorage {
     uint256 public constant PERCENTAGE_SCALE = 10e5;
 
@@ -31,6 +46,64 @@ contract Splitter is SplitStorage {
     // Emits when a window is incremented.
     event WindowIncremented(uint256 currentWindow, uint256 fundsAvailable);
 
+
+    modifier onlyOwner() {
+        require(msg.sender == owner);
+        _;
+    }
+
+  /**
+     * @notice Create an auction.
+     * @dev Store the auction details in the auctions mapping and emit an AuctionCreated event.
+     * If there is no curator, or if the curator is the auction creator, automatically approve the auction.
+     */
+    function createAuction(
+        uint256 tokenId,
+        address tokenContract,
+        uint256 duration,
+        uint256 reservePrice,
+        address payable curator,
+        uint8 curatorFeePercentages,
+        address auctionCurrency
+    ) external onlyOwner returns (uint256) {
+
+        // first approve the proxy contract to use the tokenId
+        IERC721(tokenContract).approve(address(this), tokenId);
+
+        // here msg.sender will be the proxy contract
+       uint256 auctionId =  IAuctionHouse(auctionHouse).createAuction(tokenId, tokenContract, duration, reservePrice, curator, curatorFeePercentages, auctionCurrency);
+
+       return auctionId;
+    }
+
+    function setAuctionReservePrice(
+        uint256 auctionId, 
+        uint256 reservePrice
+    ) external onlyOwner {
+        IAuctionHouse(auctionHouse).setAuctionReservePrice(auctionId, reservePrice);
+    }
+
+    function cancelAuction(uint256 auctionId) external onlyOwner {
+        IAuctionHouse(auctionHouse).cancelAuction(auctionId);
+    }
+
+    function endAuction(uint256 auctionId) external onlyOwner {
+        IAuctionHouse.Auction memory auction = IAuctionHouse(auctionHouse).auctions(auctionId);
+        if (auction.auctionCurrency == address(0)) {
+            // it is a ETH transfer
+            IAuctionHouse(auctionHouse).endAuction(auctionId);
+            incrementWindow();
+        } else {
+            // it is a Token transfer
+            uint256 prevBalance = IERC20(auction.auctionCurrency).balanceOf(address(this));
+            IAuctionHouse(auctionHouse).endAuction(auctionId);
+            uint256 newBalance = IERC20(auction.auctionCurrency).balanceOf(address(this));
+            incrementWindowToken(auction.auctionCurrency, newBalance-prevBalance);
+        }
+    }
+
+
+    /// @notice this is only for claiming the ETH. For Tokens you have to call the claimToken() function
     function claimForAllWindows(
         address account,
         uint256 percentageAllocation,
@@ -119,6 +192,36 @@ contract Splitter is SplitStorage {
         );
     }
 
+    function claimToken(
+        address token,
+        uint256 window,
+        address account,
+        uint256 scaledPercentageAllocation,
+        bytes32[] calldata merkleProof
+    ) external {
+        require(currentWindow > window, "cannot claim for a future window");
+        require(
+            !isClaimedToken(window, account, token),
+            "Already claimed the token for window"
+        );
+
+        setClaimedToken(window, account, token);
+
+        require(
+            verifyProof(
+                merkleProof,
+                merkleRoot,
+                getNode(account, scaledPercentageAllocation)
+            ),
+            "Invalid proof"
+        );
+
+        IERC20(token).transfer(account, scaleAmountByPercentage(
+                tokenWindowBalance[encodeAddress(window, account)],
+                scaledPercentageAllocation
+            ));
+    }
+
     function incrementWindow() public {
         uint256 fundsAvailable;
 
@@ -137,21 +240,36 @@ contract Splitter is SplitStorage {
         emit WindowIncremented(currentWindow, fundsAvailable);
     }
 
+    function incrementWindowToken(address _token, uint256 _tokensDeposited) public {
+        require(_tokensDeposited > 0, "No additional funds for window");
+        tokenWindowBalance[encodeAddress(currentWindow, _token)] = _tokensDeposited;
+        currentWindow += 1;
+        emit WindowIncremented(currentWindow, _tokensDeposited);
+    }
+
     function isClaimed(uint256 window, address account)
         public
         view
         returns (bool)
     {
-        return claimed[getClaimHash(window, account)];
+        return claimed[encodeAddress(window, account)];
+    }
+
+    function isClaimedToken(uint256 window, address account, address token) public view returns (bool) {
+        return claimed[keccak256(abi.encodePacked(window, account, token))];
     }
 
     //======== Private Functions ========
 
     function setClaimed(uint256 window, address account) private {
-        claimed[getClaimHash(window, account)] = true;
+        claimed[encodeAddress(window, account)] = true;
     }
 
-    function getClaimHash(uint256 window, address account)
+    function setClaimedToken(uint256 window, address account, address token) private {
+        claimed[keccak256(abi.encodePacked(window, account, token))] = true;
+    }
+
+    function encodeAddress(uint256 window, address account)
         private
         pure
         returns (bytes32)

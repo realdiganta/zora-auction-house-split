@@ -24,6 +24,8 @@ interface SplitStorageInterface extends ethers.utils.Interface {
     "balanceForWindow(uint256)": FunctionFragment;
     "currentWindow()": FunctionFragment;
     "merkleRoot()": FunctionFragment;
+    "owner()": FunctionFragment;
+    "tokenWindowBalance(bytes32)": FunctionFragment;
   };
 
   encodeFunctionData(
@@ -38,6 +40,11 @@ interface SplitStorageInterface extends ethers.utils.Interface {
     functionFragment: "merkleRoot",
     values?: undefined
   ): string;
+  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "tokenWindowBalance",
+    values: [BytesLike]
+  ): string;
 
   decodeFunctionResult(
     functionFragment: "balanceForWindow",
@@ -48,6 +55,11 @@ interface SplitStorageInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "merkleRoot", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "tokenWindowBalance",
+    data: BytesLike
+  ): Result;
 
   events: {};
 }
@@ -83,6 +95,20 @@ export class SplitStorage extends Contract {
     merkleRoot(overrides?: CallOverrides): Promise<[string]>;
 
     "merkleRoot()"(overrides?: CallOverrides): Promise<[string]>;
+
+    owner(overrides?: CallOverrides): Promise<[string]>;
+
+    "owner()"(overrides?: CallOverrides): Promise<[string]>;
+
+    tokenWindowBalance(
+      arg0: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    "tokenWindowBalance(bytes32)"(
+      arg0: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
   };
 
   balanceForWindow(
@@ -103,6 +129,20 @@ export class SplitStorage extends Contract {
 
   "merkleRoot()"(overrides?: CallOverrides): Promise<string>;
 
+  owner(overrides?: CallOverrides): Promise<string>;
+
+  "owner()"(overrides?: CallOverrides): Promise<string>;
+
+  tokenWindowBalance(
+    arg0: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  "tokenWindowBalance(bytes32)"(
+    arg0: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
   callStatic: {
     balanceForWindow(
       arg0: BigNumberish,
@@ -121,6 +161,20 @@ export class SplitStorage extends Contract {
     merkleRoot(overrides?: CallOverrides): Promise<string>;
 
     "merkleRoot()"(overrides?: CallOverrides): Promise<string>;
+
+    owner(overrides?: CallOverrides): Promise<string>;
+
+    "owner()"(overrides?: CallOverrides): Promise<string>;
+
+    tokenWindowBalance(
+      arg0: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "tokenWindowBalance(bytes32)"(
+      arg0: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
   };
 
   filters: {};
@@ -143,6 +197,20 @@ export class SplitStorage extends Contract {
     merkleRoot(overrides?: CallOverrides): Promise<BigNumber>;
 
     "merkleRoot()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    owner(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "owner()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    tokenWindowBalance(
+      arg0: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "tokenWindowBalance(bytes32)"(
+      arg0: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -163,5 +231,19 @@ export class SplitStorage extends Contract {
     merkleRoot(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "merkleRoot()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "owner()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    tokenWindowBalance(
+      arg0: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "tokenWindowBalance(bytes32)"(
+      arg0: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
   };
 }

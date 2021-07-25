@@ -22,13 +22,23 @@ import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
 
 interface ISplitFactoryInterface extends ethers.utils.Interface {
   functions: {
+    "auctionHouse()": FunctionFragment;
     "merkleRoot()": FunctionFragment;
+    "splitOwner()": FunctionFragment;
     "splitter()": FunctionFragment;
     "wethAddress()": FunctionFragment;
   };
 
   encodeFunctionData(
+    functionFragment: "auctionHouse",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "merkleRoot",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "splitOwner",
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "splitter", values?: undefined): string;
@@ -37,7 +47,12 @@ interface ISplitFactoryInterface extends ethers.utils.Interface {
     values?: undefined
   ): string;
 
+  decodeFunctionResult(
+    functionFragment: "auctionHouse",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "merkleRoot", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "splitOwner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "splitter", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "wethAddress",
@@ -61,9 +76,17 @@ export class ISplitFactory extends Contract {
   interface: ISplitFactoryInterface;
 
   functions: {
+    auctionHouse(overrides?: Overrides): Promise<ContractTransaction>;
+
+    "auctionHouse()"(overrides?: Overrides): Promise<ContractTransaction>;
+
     merkleRoot(overrides?: Overrides): Promise<ContractTransaction>;
 
     "merkleRoot()"(overrides?: Overrides): Promise<ContractTransaction>;
+
+    splitOwner(overrides?: Overrides): Promise<ContractTransaction>;
+
+    "splitOwner()"(overrides?: Overrides): Promise<ContractTransaction>;
 
     splitter(overrides?: Overrides): Promise<ContractTransaction>;
 
@@ -74,9 +97,17 @@ export class ISplitFactory extends Contract {
     "wethAddress()"(overrides?: Overrides): Promise<ContractTransaction>;
   };
 
+  auctionHouse(overrides?: Overrides): Promise<ContractTransaction>;
+
+  "auctionHouse()"(overrides?: Overrides): Promise<ContractTransaction>;
+
   merkleRoot(overrides?: Overrides): Promise<ContractTransaction>;
 
   "merkleRoot()"(overrides?: Overrides): Promise<ContractTransaction>;
+
+  splitOwner(overrides?: Overrides): Promise<ContractTransaction>;
+
+  "splitOwner()"(overrides?: Overrides): Promise<ContractTransaction>;
 
   splitter(overrides?: Overrides): Promise<ContractTransaction>;
 
@@ -87,9 +118,17 @@ export class ISplitFactory extends Contract {
   "wethAddress()"(overrides?: Overrides): Promise<ContractTransaction>;
 
   callStatic: {
+    auctionHouse(overrides?: CallOverrides): Promise<string>;
+
+    "auctionHouse()"(overrides?: CallOverrides): Promise<string>;
+
     merkleRoot(overrides?: CallOverrides): Promise<string>;
 
     "merkleRoot()"(overrides?: CallOverrides): Promise<string>;
+
+    splitOwner(overrides?: CallOverrides): Promise<string>;
+
+    "splitOwner()"(overrides?: CallOverrides): Promise<string>;
 
     splitter(overrides?: CallOverrides): Promise<string>;
 
@@ -103,9 +142,17 @@ export class ISplitFactory extends Contract {
   filters: {};
 
   estimateGas: {
+    auctionHouse(overrides?: Overrides): Promise<BigNumber>;
+
+    "auctionHouse()"(overrides?: Overrides): Promise<BigNumber>;
+
     merkleRoot(overrides?: Overrides): Promise<BigNumber>;
 
     "merkleRoot()"(overrides?: Overrides): Promise<BigNumber>;
+
+    splitOwner(overrides?: Overrides): Promise<BigNumber>;
+
+    "splitOwner()"(overrides?: Overrides): Promise<BigNumber>;
 
     splitter(overrides?: Overrides): Promise<BigNumber>;
 
@@ -117,9 +164,17 @@ export class ISplitFactory extends Contract {
   };
 
   populateTransaction: {
+    auctionHouse(overrides?: Overrides): Promise<PopulatedTransaction>;
+
+    "auctionHouse()"(overrides?: Overrides): Promise<PopulatedTransaction>;
+
     merkleRoot(overrides?: Overrides): Promise<PopulatedTransaction>;
 
     "merkleRoot()"(overrides?: Overrides): Promise<PopulatedTransaction>;
+
+    splitOwner(overrides?: Overrides): Promise<PopulatedTransaction>;
+
+    "splitOwner()"(overrides?: Overrides): Promise<PopulatedTransaction>;
 
     splitter(overrides?: Overrides): Promise<PopulatedTransaction>;
 
