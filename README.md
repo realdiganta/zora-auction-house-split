@@ -1,4 +1,4 @@
-# Zoro Auction House Split Contract
+# Zora Auction House Split Contract
 
 This repository has been forked from mirror-xyz's implementation of Split Contracts, and modified for use with Zora Auction House as per the requirements in [Feature Request: Auction Splits Contract#5](https://github.com/ourzora/auction-house/issues/5)
 
