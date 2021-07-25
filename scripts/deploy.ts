@@ -4,13 +4,17 @@ import fs from "fs";
 const config = {
   mainnet: {
     WETH_ADDRESS: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+   AUCTION_HOUSE : "0xE468cE99444174Bd3bBBEd09209577d25D1ad673"
+
   },
   rinkeby: {
     WETH_ADDRESS: "0xc778417e063141139fce010982780140aa0cd5ab",
+    AUCTION_HOUSE : "0xE7dd1252f50B3d845590Da0c5eADd985049a03ce"
   },
   hardhat: {
     // Note: This won't integrate, but will allow us to test deploys.
     WETH_ADDRESS: "0xc778417e063141139fce010982780140aa0cd5ab",
+    AUCTION_HOUSE : "0xE468cE99444174Bd3bBBEd09209577d25D1ad673"
   },
 };
 
@@ -31,7 +35,7 @@ async function main() {
 
   console.log(`Deploying to ${networkName}`);
 
-  const { WETH_ADDRESS } = config[networkName];
+  const { WETH_ADDRESS, AUCTION_HOUSE } = config[networkName];
 
   const Splitter = await ethers.getContractFactory("Splitter");
   const splitter = await Splitter.deploy();
@@ -40,7 +44,8 @@ async function main() {
   const SplitFactory = await ethers.getContractFactory("SplitFactory");
   const splitFactory = await SplitFactory.deploy(
     splitter.address,
-    WETH_ADDRESS
+    WETH_ADDRESS,
+    AUCTION_HOUSE
   );
   await splitFactory.deployed();
 
@@ -52,13 +57,6 @@ async function main() {
   };
 
   console.log(info);
-
-  if (!isLocal) {
-    fs.writeFileSync(
-      `${__dirname}/../networks/${networkName}.json`,
-      JSON.stringify(info, null, 2)
-    );
-  }
 }
 
 main()

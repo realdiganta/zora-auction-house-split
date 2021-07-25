@@ -13,8 +13,6 @@ contract SplitStorage {
     address internal auctionHouse;
     address internal wethAddress;
     address internal _splitter; // address for the splitter contract
-    uint256[] public balanceForWindow;
     mapping(bytes32 => uint256) public tokenWindowBalance; // mapping from a token's window balance to the amount of that token
     mapping(bytes32 => bool) internal claimed;
-    uint256 internal depositedInWindow;
 }

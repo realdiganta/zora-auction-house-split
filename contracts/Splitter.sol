@@ -71,7 +71,7 @@ contract Splitter is SplitStorage {
         IERC721(tokenContract).approve(address(this), tokenId);
 
         // here msg.sender will be the proxy contract
-       uint256 auctionId =  IAuctionHouse(auctionHouse).createAuction(tokenId, tokenContract, duration, reservePrice, curator, curatorFeePercentages, auctionCurrency);
+       uint256 auctionId = IAuctionHouse(auctionHouse).createAuction(tokenId, tokenContract, duration, reservePrice, curator, curatorFeePercentages, auctionCurrency);
 
        return auctionId;
     }
@@ -88,51 +88,23 @@ contract Splitter is SplitStorage {
     }
 
     function endAuction(uint256 auctionId) external onlyOwner {
+        uint256 prevBalance;
+        uint256 newBalance;
         IAuctionHouse.Auction memory auction = IAuctionHouse(auctionHouse).auctions(auctionId);
         if (auction.auctionCurrency == address(0)) {
             // it is a ETH transfer
+            prevBalance = address(this).balance;
             IAuctionHouse(auctionHouse).endAuction(auctionId);
-            incrementWindow();
+            newBalance = address(this).balance;
         } else {
             // it is a Token transfer
-            uint256 prevBalance = IERC20(auction.auctionCurrency).balanceOf(address(this));
+            prevBalance = IERC20(auction.auctionCurrency).balanceOf(address(this));
             IAuctionHouse(auctionHouse).endAuction(auctionId);
-            uint256 newBalance = IERC20(auction.auctionCurrency).balanceOf(address(this));
-            incrementWindowToken(auction.auctionCurrency, newBalance-prevBalance);
-        }
-    }
-
-
-    /// @notice this is only for claiming the ETH. For Tokens you have to call the claimToken() function
-    function claimForAllWindows(
-        address account,
-        uint256 percentageAllocation,
-        bytes32[] calldata merkleProof
-    ) external {
-        // Make sure that the user has this allocation granted.
-        require(
-            verifyProof(
-                merkleProof,
-                merkleRoot,
-                getNode(account, percentageAllocation)
-            ),
-            "Invalid proof"
-        );
-
-        uint256 amount = 0;
-        for (uint256 i = 0; i < currentWindow; i++) {
-            if (!isClaimed(i, account)) {
-                setClaimed(i, account);
-
-                amount += scaleAmountByPercentage(
-                    balanceForWindow[i],
-                    percentageAllocation
-                );
-            }
+            newBalance = IERC20(auction.auctionCurrency).balanceOf(address(this));
         }
 
-        transferETHOrWETH(account, amount);
-    }
+        incrementWindow(auction.auctionCurrency, newBalance-prevBalance);
+    }  
 
     function getNode(address account, uint256 percentageAllocation)
         private
@@ -159,40 +131,8 @@ contract Splitter is SplitStorage {
         scaledAmount = (amount * scaledPercent) / (100 * PERCENTAGE_SCALE);
     }
 
+    /// @notice Put the zero address as token for ETH claiming
     function claim(
-        uint256 window,
-        address account,
-        uint256 scaledPercentageAllocation,
-        bytes32[] calldata merkleProof
-    ) external {
-        require(currentWindow > window, "cannot claim for a future window");
-        require(
-            !isClaimed(window, account),
-            "Account already claimed the given window"
-        );
-
-        setClaimed(window, account);
-
-        require(
-            verifyProof(
-                merkleProof,
-                merkleRoot,
-                getNode(account, scaledPercentageAllocation)
-            ),
-            "Invalid proof"
-        );
-
-        transferETHOrWETH(
-            account,
-            // The absolute amount that's claimable.
-            scaleAmountByPercentage(
-                balanceForWindow[window],
-                scaledPercentageAllocation
-            )
-        );
-    }
-
-    function claimToken(
         address token,
         uint256 window,
         address account,
@@ -201,11 +141,11 @@ contract Splitter is SplitStorage {
     ) external {
         require(currentWindow > window, "cannot claim for a future window");
         require(
-            !isClaimedToken(window, account, token),
-            "Already claimed the token for window"
+            !isClaimed(window, account, token),
+            "Account already claimed the given window"
         );
 
-        setClaimedToken(window, account, token);
+        setClaimed(window, account, token);
 
         require(
             verifyProof(
@@ -216,56 +156,43 @@ contract Splitter is SplitStorage {
             "Invalid proof"
         );
 
-        IERC20(token).transfer(account, scaleAmountByPercentage(
-                tokenWindowBalance[encodeAddress(window, account)],
-                scaledPercentageAllocation
-            ));
-    }
-
-    function incrementWindow() public {
-        uint256 fundsAvailable;
-
-        if (currentWindow == 0) {
-            fundsAvailable = address(this).balance;
+        if (token == address(0)) {
+            // ETH Transfer
+            transferETHOrWETH(
+                account,
+                // The absolute amount that's claimable.
+                scaleAmountByPercentage(
+                    tokenWindowBalance[encodeAddress(window, address(0))],
+                    scaledPercentageAllocation
+                )
+            );
         } else {
-            // Current Balance, subtract previous balance to get the
-            // funds that were added for this window.
-            fundsAvailable = depositedInWindow;
+            // token transfer
+            IERC20(token).transfer(account, scaleAmountByPercentage(
+            tokenWindowBalance[encodeAddress(window, token)],
+            scaledPercentageAllocation
+            ));
         }
-
-        depositedInWindow = 0;
-        require(fundsAvailable > 0, "No additional funds for window");
-        balanceForWindow.push(fundsAvailable);
-        currentWindow += 1;
-        emit WindowIncremented(currentWindow, fundsAvailable);
     }
 
-    function incrementWindowToken(address _token, uint256 _tokensDeposited) public {
+    function incrementWindow(address _token, uint256 _tokensDeposited) private {
         require(_tokensDeposited > 0, "No additional funds for window");
         tokenWindowBalance[encodeAddress(currentWindow, _token)] = _tokensDeposited;
         currentWindow += 1;
         emit WindowIncremented(currentWindow, _tokensDeposited);
     }
 
-    function isClaimed(uint256 window, address account)
+    function isClaimed(uint256 window, address account, address token)
         public
         view
         returns (bool)
     {
-        return claimed[encodeAddress(window, account)];
-    }
-
-    function isClaimedToken(uint256 window, address account, address token) public view returns (bool) {
         return claimed[keccak256(abi.encodePacked(window, account, token))];
     }
 
     //======== Private Functions ========
 
-    function setClaimed(uint256 window, address account) private {
-        claimed[encodeAddress(window, account)] = true;
-    }
-
-    function setClaimedToken(uint256 window, address account, address token) private {
+    function setClaimed(uint256 window, address account, address token) private {
         claimed[keccak256(abi.encodePacked(window, account, token))] = true;
     }
 

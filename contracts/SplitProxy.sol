@@ -54,6 +54,5 @@ contract SplitProxy is SplitStorage {
 
     // Plain ETH transfers.
     receive() external payable {
-        depositedInWindow += msg.value;
     }
 }

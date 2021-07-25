@@ -21,7 +21,6 @@ import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
 
 interface SplitProxyInterface extends ethers.utils.Interface {
   functions: {
-    "balanceForWindow(uint256)": FunctionFragment;
     "currentWindow()": FunctionFragment;
     "merkleRoot()": FunctionFragment;
     "owner()": FunctionFragment;
@@ -29,10 +28,6 @@ interface SplitProxyInterface extends ethers.utils.Interface {
     "tokenWindowBalance(bytes32)": FunctionFragment;
   };
 
-  encodeFunctionData(
-    functionFragment: "balanceForWindow",
-    values: [BigNumberish]
-  ): string;
   encodeFunctionData(
     functionFragment: "currentWindow",
     values?: undefined
@@ -48,10 +43,6 @@ interface SplitProxyInterface extends ethers.utils.Interface {
     values: [BytesLike]
   ): string;
 
-  decodeFunctionResult(
-    functionFragment: "balanceForWindow",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "currentWindow",
     data: BytesLike
@@ -81,16 +72,6 @@ export class SplitProxy extends Contract {
   interface: SplitProxyInterface;
 
   functions: {
-    balanceForWindow(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
-    "balanceForWindow(uint256)"(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
     currentWindow(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     "currentWindow()"(overrides?: CallOverrides): Promise<[BigNumber]>;
@@ -117,16 +98,6 @@ export class SplitProxy extends Contract {
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
   };
-
-  balanceForWindow(
-    arg0: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  "balanceForWindow(uint256)"(
-    arg0: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
 
   currentWindow(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -155,16 +126,6 @@ export class SplitProxy extends Contract {
   ): Promise<BigNumber>;
 
   callStatic: {
-    balanceForWindow(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "balanceForWindow(uint256)"(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     currentWindow(overrides?: CallOverrides): Promise<BigNumber>;
 
     "currentWindow()"(overrides?: CallOverrides): Promise<BigNumber>;
@@ -195,16 +156,6 @@ export class SplitProxy extends Contract {
   filters: {};
 
   estimateGas: {
-    balanceForWindow(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "balanceForWindow(uint256)"(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     currentWindow(overrides?: CallOverrides): Promise<BigNumber>;
 
     "currentWindow()"(overrides?: CallOverrides): Promise<BigNumber>;
@@ -233,16 +184,6 @@ export class SplitProxy extends Contract {
   };
 
   populateTransaction: {
-    balanceForWindow(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "balanceForWindow(uint256)"(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     currentWindow(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "currentWindow()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
